@@ -1,11 +1,13 @@
 #!/usr/bin/python2
+# -*- coding: utf-8 -*-
 """
     Modulo para se comunicar
     com o site da biblioteca
     da UNICAP
-    ~Andre Ericson(de.ericson@gmail.com)
-
-    PS: don't be gay about print's, nao eh final
+    ~André Ericson(de.ericson@gmail.com)
+    Depends on:
+        - python-mechanize (programmatic web browsing)
+        - BeautifulSoup (html parser)
 """
 import mechanize
 import cookielib
@@ -31,12 +33,14 @@ class Book(object):
         return (self.deadline - date.today()).days
 
     def __str__(self):
-        return 'Livro: %s Data: %s' % (self.title,
+        return u'Livro: %s Data: %s' % (self.title,
                                        self.deadline.strftime('%d/%m/%Y'))
 
-    def __repr__(self):
-        return "'%s'" % str(self)
+    def __eq__(self, other):
+        return self.title == other.title
 
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
 class Library(object):
 
@@ -46,7 +50,7 @@ class Library(object):
         self._login()
 
     """
-        Lista e livros locados
+        Lista de livros locados
     """
     def get_books(self):
         r = self.browser.open(RENOV_PAGE)
@@ -69,30 +73,79 @@ class Library(object):
         r = self.browser.submit()
         assert r.geturl() != LOGIN_PAGE
         # TODO: create an exception
-        print 'LOGGED AS ' + ' '.join(self.browser.title().split()[2:])
+        # print 'LOGGED AS ' + ' '.join(self.browser.title().split()[2:])
         self.books = self.get_books()    
+
+    def _get_control_and_set_value(self, control_name, value):
+        control = self.browser.find_control(control_name)
+        control.readonly = False
+        control.value = value
+
+    def _fill_form_renovar(self, str_selecs):
+        self._get_control_and_set_value('renova', 'renovar')
+        self._get_control_and_set_value('Selecs', str_selecs)
+        self._get_control_and_set_value('acao', 'clicou')
+
+
+    """
+        Renova o livro book
+        retorna o novo livro caso tenha renovado
+        ou None caso falhe
+        Possivel motivos para falha:
+            - Reservas feitas
+            - O livro já está renovado
+    """
+    def renew_book(self, book):
+        check_box = self.browser.find_control(book.check).items[0]
+        check_box.selected = True
+        str_selecs = check_box.name + ';'
+        self._fill_form_renovar(str_selecs)
+        self.browser.submit()
+        books = self.get_books()
+        for _book in books:
+            if _book.title == book.title and _book.deadline != book.deadline:
+                #print (u'%s renovado para o dia %s.' %
+                #    (_book.title, _book.deadline.strftime('%d/%m/%Y')))
+                return _book
+        else:
+            return None
 
     """
         Renova todos os livros com numero de dias faltando
         menor que days.
+        Renova lista de livros renovados ou None
     """
-    def renew(self, days=10):
+    def renew_all_old(self, days=10):
         any_book = False
+        str_selecs = ''
+        to_do = []
         for book in self.books:
             if book.days_left() < days: 
                 any_book = True
-                print 'gonna try %s' % book.title
+                #print u'gonna try %s' % book.title
+                to_do.append(book)
                 check_box = self.browser.find_control(book.check).items[0]
                 check_box.selected = True
+                str_selecs += check_box.name + ';'
         
-        if any_book:
+        if str_selecs:
+            self._fill_form_renovar(str_selecs)
             self.browser.submit()
-            books = self.get_books() 
-            any_book = False
-            for book_old, book_new in zip(self.books, books):
+            books = self.get_books()
+            cmp_title = lambda x,y: x.title < y.title
+            for book_old, book_new in zip(
+                                    sorted(self.books, cmp=cmp_title),
+                                    sorted(books, cmp=cmp_title)):
                 if book_old.deadline != book_new.deadline:
                     any_book = True
-                    print ('%s renovado para o dia %s.' %
-                        book_new.title, book_new.deadline.strftime('%d/%m/%Y'))
-        if not any_book:
-            print 'Nenhum livro renovado.'
+                    #print (u'%s renovado para o dia %s.' %
+                    #    (book_new.title, book_new.deadline.strftime('%d/%m/%Y')))
+                    
+                elif book_new in to_do:
+                    #print u'nao consegui renovar %s' % book_new.title
+                    to_do.remove(book_new)
+            self.books = books
+        if not str_selecs or not any_book or not to_do:
+            #print 'Nenhum livro renovado.'
+            return None
+        return to_do
