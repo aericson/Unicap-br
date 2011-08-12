@@ -3,7 +3,7 @@
     Modulo para se comunicar
     com o site da biblioteca
     da UNICAP
-    ~André Ericson(de.ericson@gmail.com)
+    ~Andre Ericson(de.ericson@gmail.com)
 
     PS: don't be gay about print's, nao eh final
 """
@@ -35,7 +35,7 @@ class Book(object):
                                        self.deadline.strftime('%d/%m/%Y'))
 
     def __repr__(self):
-        return str(self)
+        return "'%s'" % str(self)
 
 
 class Library(object):
