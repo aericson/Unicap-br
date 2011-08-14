@@ -1,2 +1,5 @@
 Unicap Book Renewer,
 a tool to renew your books from Unicap's Library.
+Depends on:
+    - python-mechanize (programmatic web browsing)
+    - BeautifulSoup (html parser)
