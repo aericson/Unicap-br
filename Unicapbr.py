@@ -4,10 +4,10 @@
     Modulo para se comunicar
     com o site da biblioteca
     da UNICAP
-    ~André Ericson(de.ericson@gmail.com)
     Depends on:
         - python-mechanize (programmatic web browsing)
         - BeautifulSoup (html parser)
+    ~André Ericson(de.ericson@gmail.com)
 """
 import mechanize
 import cookielib
