@@ -6,6 +6,7 @@ Depends on:
     - BeautifulSoup (html parser)
 Syntax:
     ./renewer.py -m MATRICULA -p SENHA -d DIAS_MAX
-sendo dias_max o numero máximo de dias a partir do
-qual o script renovará um livro.
+sendo dias_max o numero máximo de dias faltando
+para a devolução a partir do qual o script renovará
+um livro.
 
