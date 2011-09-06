@@ -119,6 +119,7 @@ class Library(object):
         any_book = False
         str_selecs = ''
         to_do = []
+        done = []
         for book in self.books:
             if book.days_left() < days: 
                 any_book = True
@@ -140,7 +141,8 @@ class Library(object):
                     any_book = True
                     #print (u'%s renovado para o dia %s.' %
                     #    (book_new.title, book_new.deadline.strftime('%d/%m/%Y')))
-                    
+                    done.append(book_new)
+
                 elif book_new in to_do:
                     #print u'nao consegui renovar %s' % book_new.title
                     to_do.remove(book_new)
@@ -148,4 +150,4 @@ class Library(object):
         if not str_selecs or not any_book or not to_do:
             #print 'Nenhum livro renovado.'
             return None
-        return to_do
+        return done

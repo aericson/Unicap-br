@@ -23,7 +23,7 @@ def main():
     if renovados:
         print 'Os seguintes titulos foram renovados:'
         for i in renovados:
-            print i.title
+            print i.title, 'para o dia', i.deadline.strftime('%d/%m/%Y')
     else:
         print ('Nenhum livro foi renovado. Livro(s) deve(m) estar reservado(s) ou '
         'a data de devolucao ja esta entre 15-17 dias.')
