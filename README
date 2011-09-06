@@ -1,5 +1,12 @@
 Unicap Book Renewer,
 a tool to renew your books from Unicap's Library.
+You probably will want to use it on a cronjob(http://en.wikipedia.org/wiki/Cron)
 Depends on:
     - python-mechanize (programmatic web browsing)
     - BeautifulSoup (html parser)
+Syntax:
+    ./renewer.py -m MATRICULA -p SENHA -d DIAS_MAX
+sendo dias_max o numero máximo de dias faltando
+para a devolução a partir do qual o script renovará
+um livro.
+
