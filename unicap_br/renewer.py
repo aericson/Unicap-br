@@ -13,7 +13,7 @@ def renewer():
         )
 
     parser.add_option(
-            '-d', '--dias', dest='dias',
+            '-d', '--dias', dest='dias', type='int',
             help=u'Número de dias faltando para realizar a renovacao',
         )
 
@@ -32,15 +32,15 @@ def renewer():
     try:
         l = unicap_br.Library(options.matricula, options.password)
     except AssertionError:
-        print (u'Não foi possivel fazer o login, provavelmente senha/mat '
-               u'invalida.')
+        print (u'Não foi possível fazer o login, provavelmente senha/mat '
+               u'inválida.')
         sys.exit(1)
     renovados = l.renew_all_old(options.dias)
 
     if renovados:
-        print 'Os seguintes titulos foram renovados:'
+        print 'Os seguintes títulos foram renovados:'
         for i in renovados:
             print i.title, 'para o dia', i.deadline.strftime('%d/%m/%Y')
     else:
         print (u'Nenhum livro foi renovado. Livro(s) deve(m) estar reservado'
-               u'(s) ou a data de devolucao ja esta entre 15-17 dias.')
+               u'(s) ou a data de devolução já esta entre 15-17 dias.')

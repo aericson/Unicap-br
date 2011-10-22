@@ -20,6 +20,7 @@ LOGIN_PAGE = ('http://www.unicap.br/pergamum/Pergamum/biblioteca_s/php/login_'
 RENOV_PAGE = ('http://www.unicap.br/pergamum/Pergamum/biblioteca_s/php/au_pe'
               'ndente.php?titpag=%20Renova%E7%E3o&tipo=renovacao&flag=index.'
               'php')
+DEBUG = False
 
 
 class Book(object):
@@ -60,7 +61,7 @@ class Library(object):
         """
         r = self.browser.open(RENOV_PAGE)
         self.browser.select_form(name='form1')
-        soup = BeautifulSoup(r)
+        soup = BeautifulSoup(r, fromEncoding='iso-8859-1')
         books = soup.findAll('tr', attrs={'class': re.compile('rel.*')})
         return [Book(book) for book in books]
 
@@ -78,7 +79,8 @@ class Library(object):
         r = self.browser.submit()
         assert r.geturl() != LOGIN_PAGE
         # TODO: create an exception
-        # print 'LOGGED AS ' + ' '.join(self.browser.title().split()[2:])
+        if DEBUG:
+            print 'LOGGED AS ' + ' '.join(self.browser.title().split()[2:])
         self.books = self.get_books()
 
     def _get_control_and_set_value(self, control_name, value):
@@ -108,8 +110,9 @@ class Library(object):
         books = self.get_books()
         for _book in books:
             if _book.title == book.title and _book.deadline != book.deadline:
-                #print (u'%s renovado para o dia %s.' %
-                #    (_book.title, _book.deadline.strftime('%d/%m/%Y')))
+                if DEBUG:
+                    print (u'%s renovado para o dia %s.' %
+                            (_book.title, _book.deadline.strftime('%d/%m/%Y')))
                 return _book
         else:
             return None
@@ -120,14 +123,13 @@ class Library(object):
             menor que days.
             Renova lista de livros renovados ou None
         """
-        any_book = False
         str_selecs = ''
         to_do = []
         done = []
         for book in self.books:
             if book.days_left() < days:
-                any_book = True
-                #print u'gonna try %s' % book.title
+                if DEBUG:
+                    print u'gonna try %s' % book.title
                 to_do.append(book)
                 check_box = self.browser.find_control(book.check).items[0]
                 check_box.selected = True
@@ -142,16 +144,17 @@ class Library(object):
                                     sorted(self.books, cmp=cmp_title),
                                     sorted(books, cmp=cmp_title)):
                 if book_old.deadline != book_new.deadline:
-                    any_book = True
-                    #print (u'%s renovado para o dia %s.' %
-                    #(book_new.title, book_new.deadline.strftime('%d/%m/%Y')))
+                    if DEBUG:
+                        print (u'%s renovado para o dia %s.' %
+                            (book_new.title,
+                                book_new.deadline.strftime('%d/%m/%Y')))
                     done.append(book_new)
 
-                elif book_new in to_do:
-                    #print u'nao consegui renovar %s' % book_new.title
-                    to_do.remove(book_new)
+                elif DEBUG and book_new in to_do:
+                    print u'nao consegui renovar %s' % book_new.title
             self.books = books
-        if not str_selecs or not any_book or not to_do:
-            #print 'Nenhum livro renovado.'
+        if not done:
+            if DEBUG:
+                print 'Nenhum livro renovado.'
             return None
         return done
