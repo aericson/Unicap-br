@@ -9,11 +9,11 @@
         - BeautifulSoup (html parser)
     ~André Ericson(de.ericson@gmail.com)
 """
+import re
 import mechanize
 import cookielib
-from BeautifulSoup import BeautifulSoup
-import re
 from datetime import date
+from BeautifulSoup import BeautifulSoup
 
 LOGIN_PAGE = ('http://www.unicap.br/pergamum/Pergamum/biblioteca_s/php/login_'
               'usu.php')
