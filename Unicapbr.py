@@ -15,21 +15,25 @@ from BeautifulSoup import BeautifulSoup
 import re
 from datetime import date
 
-LOGIN_PAGE = 'http://www.unicap.br/pergamum/Pergamum/biblioteca_s/php/login_usu.php'
-RENOV_PAGE = 'http://www.unicap.br/pergamum/Pergamum/biblioteca_s/php/au_pendente.php?titpag=%20Renova%E7%E3o&tipo=renovacao&flag=index.php'
+LOGIN_PAGE = ('http://www.unicap.br/pergamum/Pergamum/biblioteca_s/php/login_'
+              'usu.php')
+RENOV_PAGE = ('http://www.unicap.br/pergamum/Pergamum/biblioteca_s/php/au_pe'
+              'ndente.php?titpag=%20Renova%E7%E3o&tipo=renovacao&flag=index.'
+              'php')
+
 
 class Book(object):
-    
+
     def __init__(self, soup_tag):
-       tds = soup_tag.findAll('td')
-       self.check = str(tds[0].find('input')['name'])
-       self.title = tds[2].string.strip()
-       self.deadline = date(*map(int, tds[6].string.strip().split('/')[::-1]))
-    
-    """
-        dias faltando pra devolver
-    """
+        tds = soup_tag.findAll('td')
+        self.check = str(tds[0].find('input')['name'])
+        self.title = tds[2].string.strip()
+        self.deadline = date(*map(int, tds[6].string.strip().split('/')[::-1]))
+
     def days_left(self):
+        """
+            dias faltando pra devolver
+        """
         return (self.deadline - date.today()).days
 
     def __str__(self):
@@ -42,6 +46,7 @@ class Book(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+
 class Library(object):
 
     def __init__(self, login, password):
@@ -49,20 +54,20 @@ class Library(object):
         self.password = password
         self._login()
 
-    """
-        Lista de livros locados
-    """
     def get_books(self):
+        """
+            Lista de livros locados
+        """
         r = self.browser.open(RENOV_PAGE)
         self.browser.select_form(name='form1')
         soup = BeautifulSoup(r)
-        books = soup.findAll('tr',attrs={'class': re.compile('rel.*')})
+        books = soup.findAll('tr', attrs={'class': re.compile('rel.*')})
         return [Book(book) for book in books]
-    
-    """
-        Faz o login, deixe que __init__ chama essa func
-    """
+
     def _login(self):
+        """
+            Faz o login, deixe que __init__ chama essa func
+        """
         self.browser = mechanize.Browser()
         cj = cookielib.LWPCookieJar()
         self.browser.set_cookiejar(cj)
@@ -74,7 +79,7 @@ class Library(object):
         assert r.geturl() != LOGIN_PAGE
         # TODO: create an exception
         # print 'LOGGED AS ' + ' '.join(self.browser.title().split()[2:])
-        self.books = self.get_books()    
+        self.books = self.get_books()
 
     def _get_control_and_set_value(self, control_name, value):
         control = self.browser.find_control(control_name)
@@ -86,16 +91,15 @@ class Library(object):
         self._get_control_and_set_value('Selecs', str_selecs)
         self._get_control_and_set_value('acao', 'clicou')
 
-
-    """
-        Renova o livro book
-        retorna o novo livro caso tenha renovado
-        ou None caso falhe
-        Possivel motivos para falha:
-            - Reservas feitas
-            - O livro já está renovado
-    """
     def renew_book(self, book):
+        """
+            Renova o livro book
+            retorna o novo livro caso tenha renovado
+            ou None caso falhe
+            Possivel motivos para falha:
+                - Reservas feitas
+                - O livro já está renovado
+        """
         check_box = self.browser.find_control(book.check).items[0]
         check_box.selected = True
         str_selecs = check_box.name + ';'
@@ -110,37 +114,37 @@ class Library(object):
         else:
             return None
 
-    """
-        Renova todos os livros com numero de dias faltando
-        menor que days.
-        Renova lista de livros renovados ou None
-    """
     def renew_all_old(self, days=10):
+        """
+            Renova todos os livros com numero de dias faltando
+            menor que days.
+            Renova lista de livros renovados ou None
+        """
         any_book = False
         str_selecs = ''
         to_do = []
         done = []
         for book in self.books:
-            if book.days_left() < days: 
+            if book.days_left() < days:
                 any_book = True
                 #print u'gonna try %s' % book.title
                 to_do.append(book)
                 check_box = self.browser.find_control(book.check).items[0]
                 check_box.selected = True
                 str_selecs += check_box.name + ';'
-        
+
         if str_selecs:
             self._fill_form_renovar(str_selecs)
             self.browser.submit()
             books = self.get_books()
-            cmp_title = lambda x,y: x.title < y.title
+            cmp_title = lambda x, y: x.title < y.title
             for book_old, book_new in zip(
                                     sorted(self.books, cmp=cmp_title),
                                     sorted(books, cmp=cmp_title)):
                 if book_old.deadline != book_new.deadline:
                     any_book = True
                     #print (u'%s renovado para o dia %s.' %
-                    #    (book_new.title, book_new.deadline.strftime('%d/%m/%Y')))
+                    #(book_new.title, book_new.deadline.strftime('%d/%m/%Y')))
                     done.append(book_new)
 
                 elif book_new in to_do:
