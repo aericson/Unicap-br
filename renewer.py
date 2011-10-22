@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 # Andre Ericson
-import Unicapbr
+import unicap_br
 from optparse import OptionParser
 import sys
 
@@ -15,7 +15,7 @@ def main():
         parser.print_help()
         sys.exit(1)
     try:
-        l = Unicapbr.Library(options.matricula, options.password)
+        l = unicap_br.Library(options.matricula, options.password)
     except AssertionError:
         print 'Nao foi possivel fazer o login, provavelmente senha/mat invalida.'
         sys.exit(1)
