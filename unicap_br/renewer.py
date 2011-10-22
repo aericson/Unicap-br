@@ -6,7 +6,7 @@ from optparse import OptionParser
 import sys
 
 
-def main():
+def renewer():
     parser = OptionParser(
             usage="./%prog -m MATRICULA -p SENHA -d DIAS",
             version="%prog 0.1",
@@ -44,6 +44,3 @@ def main():
     else:
         print (u'Nenhum livro foi renovado. Livro(s) deve(m) estar reservado'
                u'(s) ou a data de devolucao ja esta entre 15-17 dias.')
-
-if __name__ == '__main__':
-    main()
