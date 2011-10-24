@@ -80,7 +80,7 @@ class Library(object):
         assert r.geturl() != LOGIN_PAGE
         # TODO: create an exception
         if DEBUG:
-            print 'LOGGED AS ' + ' '.join(self.browser.title().split()[2:])
+            print u'LOGGED AS ' + u' '.join(self.browser.title().split()[2:])
         self.books = self.get_books()
 
     def _get_control_and_set_value(self, control_name, value):
@@ -155,6 +155,6 @@ class Library(object):
             self.books = books
         if not done:
             if DEBUG:
-                print 'Nenhum livro renovado.'
+                print u'Nenhum livro renovado.'
             return None
         return done

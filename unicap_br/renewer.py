@@ -38,9 +38,9 @@ def renewer():
     renovados = l.renew_all_old(options.dias)
 
     if renovados:
-        print 'Os seguintes títulos foram renovados:'
+        print u'Os seguintes títulos foram renovados:'
         for i in renovados:
-            print i.title, 'para o dia', i.deadline.strftime('%d/%m/%Y')
+            print i.title, u'para o dia', i.deadline.strftime('%d/%m/%Y')
     else:
         print (u'Nenhum livro foi renovado. Livro(s) deve(m) estar reservado'
                u'(s) ou a data de devolução já esta entre 15-17 dias.')
