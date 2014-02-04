@@ -15,7 +15,7 @@ setup(
     scripts=['bin/renewer.py'],
     long_description=README,
     install_requires=[
-        'BeautifulSoup>=3.2.0',
+        'BeautifulSoup>=4.3',
         'mechanize>=0.2.5',
     ],
     classifiers=[

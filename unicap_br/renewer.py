@@ -31,6 +31,7 @@ def renewer():
 
     try:
         l = unicap_br.Library(options.matricula, options.password)
+        l.logon()
     except AssertionError:
         print (u'Não foi possível fazer o login, provavelmente senha/mat '
                u'inválida.')
@@ -44,3 +45,6 @@ def renewer():
     else:
         print (u'Nenhum livro foi renovado. Livro(s) deve(m) estar reservado'
                u'(s) ou a data de devolução já esta entre 15-17 dias.')
+
+if __name__ == "__main__":
+    renewer()

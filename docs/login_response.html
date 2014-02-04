@@ -1,0 +1,450 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <LINK REL="SHORTCUT ICON" href="meu_pergamum2.ico">
+    <title>..::Universidade Cat�lica de Pernambuco::.. </title>
+
+    <link href="css/01/meu_pergamum.css" rel="stylesheet" type="text/css" />
+    <script src="SpryAssets/SpryAccordion.js" type="text/javascript"></script>
+    <link href="css/01/table.css" rel="stylesheet" type="text/css" />
+    <link href="css/01/SpryAccordion.css" rel="stylesheet" type="text/css" />
+    <script src="../../js/generico_mp.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+                // remote scripting library
+                // (c) copyright 2005 modernmethod, inc
+                var sajax_debug_mode = false;
+                var sajax_request_type = "GET";
+                var sajax_target_id = "";
+                var sajax_failure_redirect = "";
+
+                function sajax_debug(text) {
+                  if (sajax_debug_mode)
+                    alert(text);
+                }
+
+                function sajax_init_object() {
+                 sajax_debug("sajax_init_object() called..")
+
+                 var A;
+
+                 var msxmlhttp = new Array(
+                  'Msxml2.XMLHTTP.5.0',
+                  'Msxml2.XMLHTTP.4.0',
+                  'Msxml2.XMLHTTP.3.0',
+                  'Msxml2.XMLHTTP',
+                  'Microsoft.XMLHTTP');
+                 for (var i = 0; i < msxmlhttp.length; i++) {
+                  try {
+                    A = new ActiveXObject(msxmlhttp[i]);
+                  } catch (e) {
+                    A = null;
+                  }
+                }
+
+                if(!A && typeof XMLHttpRequest != "undefined")
+                  A = new XMLHttpRequest();
+                if (!A)
+                  sajax_debug("Could not create connection object.");
+                return A;
+              }
+
+              var sajax_requests = new Array();
+
+              function sajax_cancel() {
+                for (var i = 0; i < sajax_requests.length; i++)
+                  sajax_requests[i].abort();
+              }
+
+              function sajax_do_call(func_name, args) {
+                var i, x, n;
+                var uri;
+                var post_data;
+                var target_id;
+
+                sajax_debug("in sajax_do_call().." + sajax_request_type + "/" + sajax_target_id);
+                target_id = sajax_target_id;
+                if (typeof(sajax_request_type) == "undefined" || sajax_request_type == "")
+                  sajax_request_type = "GET";
+
+                uri = "http://www.unicap.br/pergamum2/Pergamum/biblioteca_s/meu_pergamum/index.php?flag=";
+                if (sajax_request_type == "GET") {
+
+                  if (uri.indexOf("?") == -1)
+                    uri += "?rs=" + escape(func_name);
+                  else
+                    uri += "&rs=" + escape(func_name);
+                  uri += "&rst=" + escape(sajax_target_id);
+                  uri += "&rsrnd=" + new Date().getTime();
+
+                  for (i = 0; i < args.length-1; i++)
+                    uri += "&rsargs[]=" + escape(args[i]);
+
+                  post_data = null;
+                }
+                else if (sajax_request_type == "POST") {
+                  post_data = "rs=" + escape(func_name);
+                  post_data += "&rst=" + escape(sajax_target_id);
+                  post_data += "&rsrnd=" + new Date().getTime();
+
+                  for (i = 0; i < args.length-1; i++)
+                    post_data = post_data + "&rsargs[]=" + escape(args[i]);
+                }
+                else {
+                  alert("Illegal request type: " + sajax_request_type);
+                }
+
+                x = sajax_init_object();
+                if (x == null) {
+                  if (sajax_failure_redirect != "") {
+                    location.href = sajax_failure_redirect;
+                    return false;
+                  } else {
+                    sajax_debug("NULL sajax object for user agent:\n" + navigator.userAgent);
+                    return false;
+                  }
+                } else {
+                  x.open(sajax_request_type, uri, true);
+                                // window.open(uri);
+
+                                sajax_requests[sajax_requests.length] = x;
+
+                                if (sajax_request_type == "POST") {
+                                  x.setRequestHeader("Method", "POST " + uri + " HTTP/1.1");
+                                  x.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                                }
+
+                                x.onreadystatechange = function() {
+                                  if (x.readyState != 4)
+                                    return;
+
+                                  sajax_debug("received " + x.responseText);
+
+                                  var status;
+                                  var data;
+                                  var txt = x.responseText.replace(/^\s*|\s*$/g,"");
+                                  status = txt.charAt(0);
+                                  data = txt.substring(2);
+
+                                  if (status == "") {
+                                                // let's just assume this is a pre-response bailout and let it slide for now
+                                              } else if (status == "-")
+                                              alert("Error: " + data);
+                                              else {
+                                                if (target_id != "")
+                                                  document.getElementById(target_id).innerHTML = eval(data);
+                                                else {
+                                                  try {
+                                                    var callback;
+                                                    var extra_data = false;
+                                                    if (typeof args[args.length-1] == "object") {
+                                                      callback = args[args.length-1].callback;
+                                                      extra_data = args[args.length-1].extra_data;
+                                                    } else {
+                                                      callback = args[args.length-1];
+                                                    }
+                                                    callback(eval(data), extra_data);
+                                                  } catch (e) {
+                                                    sajax_debug("Caught error " + e + ": Could not eval " + data );
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+
+                                          sajax_debug(func_name + " uri = " + uri + "/post = " + post_data);
+                                          x.send(post_data);
+                                          sajax_debug(func_name + " waiting..");
+                                          delete x;
+                                          return true;
+                                        }
+
+                                        
+                // wrapper for ajax_set_idioma
+                function x_ajax_set_idioma() {
+                  sajax_do_call("ajax_set_idioma",
+                    x_ajax_set_idioma.arguments);
+                }
+
+                
+                // wrapper for ajax_cancelarReserva
+                function x_ajax_cancelarReserva() {
+                  sajax_do_call("ajax_cancelarReserva",
+                    x_ajax_cancelarReserva.arguments);
+                }
+
+                
+                // wrapper for ajax_buscaTituloReserva
+                function x_ajax_buscaTituloReserva() {
+                  sajax_do_call("ajax_buscaTituloReserva",
+                    x_ajax_buscaTituloReserva.arguments);
+                }
+
+                
+                // wrapper for ajax_renova
+                function x_ajax_renova() {
+                  sajax_do_call("ajax_renova",
+                    x_ajax_renova.arguments);
+                }
+
+                
+                // wrapper for ajax_volta_login_admin
+                function x_ajax_volta_login_admin() {
+                  sajax_do_call("ajax_volta_login_admin",
+                    x_ajax_volta_login_admin.arguments);
+                }
+
+                
+                function apagaReserva(codAcervo,codBiblioteca){
+
+                  var volume=document.getElementById("idVolume"+codAcervo).value
+                  var tomoExemplar=document.getElementById("idTomo"+codAcervo).value
+                  var matAdicional=document.getElementById("idMatAdicional"+codAcervo).value
+                  var parte=document.getElementById("idParte"+codAcervo).value
+
+
+        //alert(codAcervo+" - "+volume+" - "+codBiblioteca+" - "+tomoExemplar+" - "+matAdicional+" - "+parte);
+
+        if(confirm("Deseja realmente apagar a reserva?")){
+
+          x_ajax_cancelarReserva(codAcervo,volume,codBiblioteca,tomoExemplar,matAdicional,parte,mostraReserva);
+
+        }
+      }
+
+      function mostraReserva(resultado){
+
+        //alert(resultado);
+
+        if(resultado=="ok"){
+          buscaTituloReserva();
+        }else{
+          alert(resultado);
+                //buscaTituloReserva();
+              }
+
+            }
+
+            function buscaTituloReserva(){
+
+              x_ajax_buscaTituloReserva(mostraTituloReserva);
+
+            }
+
+            function mostraTituloReserva(resultado){
+
+        //alert(resultado);
+        document.getElementById("div_tableTituloReserva").innerHTML=resultado;
+      }
+
+
+      function renova(codExemplar,codBiblioteca,codBibliotecaExemplar){
+
+        //alert(codExemplar+" - "+codBiblioteca+" - "+codBibliotecaExemplar);
+
+        var codReduzidoAnt = document.getElementById("id_codigoreduzido_anteriorPendente").value;
+
+        x_ajax_renova(codExemplar,codBiblioteca,codBibliotecaExemplar,codReduzidoAnt,mostraRenova);
+
+      }
+
+      function mostraRenova(resultado){
+        if(resultado[3]!="")
+        {
+          alert(resultado[3]);
+          return;
+        }
+
+        document.location.href="emp_resultado.php?erros="+resultado[0]+"&exemplares="+resultado[1]+"&voltaTela="+resultado[2];
+      }
+
+    </script>
+  </head>
+  <body>
+    <input type="hidden" name="id_codigoreduzido_anteriorPendente" id="id_codigoreduzido_anteriorPendente" value="2009123456">
+    <style type="text/css">
+      #logotype {
+        position:absolute;  
+        left:10px;  
+        top:10px; 
+        width:170px;  
+        height:90px;  
+        z-index:58; 
+        text-align: center; 
+        vertical-align: middle;
+        background-image: url(../../img/logo_empresa.jpg);
+        cursor:pointer;
+        background-repeat: no-repeat;
+        background-position:center;
+      }
+      #link_meupergamum {
+        position:absolute;
+        left:209px;
+        top:10px;
+        width:198px;
+        height:49px;
+        z-index:67;
+        cursor:pointer;
+      }
+      #div_ajuda {
+        position:absolute;
+  /*top:-3px;
+  right: 130px;*/
+  top:72px;
+  right: 10px;
+  z-index:68;
+  text-align: center;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  padding: 5px;
+  font-size: 12px;
+  color: #009999;
+  /*border: 3px double #B8CFE7;
+  background-color: #FFFFFF;*/
+  cursor: pointer;
+}
+#div_ajuda:hover {
+  color: #FFFFFF;
+  border: #B8CFE7;
+  background-color: #009999;
+}
+</style>
+<script type="text/javascript">
+
+function MM_goToURL() { //v3.0
+  var i, args=MM_goToURL.arguments; document.MM_returnValue = false;
+  for (i=0; i<(args.length-1); i+=2) eval(args[i]+".location='"+args[i+1]+"'");
+}
+
+function ver_manual_tela()
+{
+  window.open('./ajuda_telas/17.pdf','JanelaAjuda','width=795,height=520,top=2px,left=2px,status=yes,scrollbars=yes,resizable=yes');  
+}
+
+</script>
+<div id="link_meupergamum" title="Clique aqui para voltar � p�gina inicial do MEU Pergamum" onclick="MM_goToURL('parent','index.php');return document.MM_returnValue"></div>
+<div id="div_ajuda" onclick="ver_manual_tela();"><strong>(?)</strong> Ajuda</div>
+<div id="coringa1">&nbsp;</div>
+<div id="coringa2"></div>
+<div id="coringa3"></div>
+<div id="cesta"><link href="css/01/meu_pergamum.css" rel="stylesheet" type="text/css" />
+  <a href="css.php"><img src="img/01/transp.gif" title="Consultar minha CESTA" width="10" height="10" border="0" class="cesta_img" /></a></div>
+<!-- 
+<div id="cor"><link href="css/01/meu_pergamum.css" rel="stylesheet" type="text/css" />
+ <a href="css.php"><img src="img/01/transp.gif" title="Clique escolher outros LAYOUTS" width="10" height="10" border="0" class="cor_img" /></a></div>
+-->
+<div class="top"></div>
+<div id="canto_sair"><a href="logout.php"><img src="img/01/transp.gif" title="Sair do Meu Pergamum." width="10" height="10" border="0" class="btn_sair" /></a></div>
+<div id="logotype" title="Clique aqui para voltar � p�gina inicial do MEU Pergamum" onclick="MM_goToURL('parent','index.php');return document.MM_returnValue" ></div>
+<div id="nome"><a href="#"></a><strong>FOO BAR</strong>, Seja bem-vindo(a)!
+</div>
+<!-- 
+<div id="editar" onclick="document.location.href='dados_pessoais.php';">editar</div>
+-->
+<div id="sombra"></div>
+<div id="rodape">Copyright 2010 - <strong>Pergamum</strong>. Todos os direitos reservados&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</div>
+<span class="txt_azul">&nbsp;</span>
+<div id="btn_home"><a title="Voltar para a p�gina inicial" href="index.php"><img src="img/01/transp.gif" width="30" height="25" border="0" /></a></div>
+<div id="meio">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="10" valign="top">
+        <div id="menu1" class="menu1">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td height="23" valign="bottom"><div align="right"><a title="Minimizar este menu / Ocultar o menu" href="#"><img src="img/01/btn_mini.png" width="12" height="17" border="0" onclick="oculta('menu1');oculta('menu2')" /></a></div></td>
+            </tr>
+            <tr>
+              <td height="25">&nbsp;</td>
+            </tr>
+          </table>
+          <script src="SpryAssets/SpryMenuBar.js" type="text/javascript"></script>
+          <link href="css/01/SpryMenuBarHorizontal.css"
+          rel="stylesheet" type="text/css">
+          <link
+          href="css/01/SpryMenuBarVertical.css" rel="stylesheet" type="text/css">
+          <ul id="MenuBar1" class="MenuBarVertical"><li><a class="MenuBarItemSubmenu" href="#">Empr�stimo</a>
+            <ul><li><a href="emp_renovacao.php"> Renova��o</a></li><li><a href="emp_reserva.php"> Reserva</a></li><li><a href="emp_debito.php"> D�bito</a></li><li><a href="emp_pendente.php"> Material pendente</a></li><li><a href="emp_afastamento.php"> Afastamento</a></li>
+            </ul>
+          </li><li><a class="MenuBarItemSubmenu" href="#">Perfil de interesse</a>
+          <ul><li><a href="per_cadastro1.php"> �reas de interesse</a></li><li><a href="per_checar1.php"> Checar t�tulos</a></li><li><a href="per_cesta.php"> Cesta permanente</a></li><li><a href="per_plano.php"> Plano de ensino</a></li>
+          </ul>
+        </li><li><a class="MenuBarItemSubmenu" href="#">Solicita��es</a>
+        <ul><li><a href="sol_comutacao.php"> Comuta��o bibliogr�fica</a></li><li><a href="sol_ficha.php"> Ficha catalogr�fica</a></li>
+        </ul>
+      </li><li><a href="comentario.php"> Comentarios</a></li><li><a href="dados_pessoais.php"> Dados pessoais</a></li><li><a href="alterar_senha.php"> Altera��o de senha</a></li></ul><script type="text/javascript">
+      <!--
+      var MenuBar1 = new Spry.Widget.MenuBar("MenuBar1", {imgRight:"SpryAssets/SpryMenuBarRightHover.gif"});
+//-->
+</script>        </div>
+<div id="menu2" class="menu2" style="display:none">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td height="23" valign="bottom"><div align="center"><a title="Minimizar este menu / Ocultar o menu" href="#"><img src="img/01/btn_maxi.png" width="12" height="17" border="0" onclick="oculta('menu2');oculta('menu1')" /></a></div></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+</div></td>
+<td valign="top"><table width="100%" border="0" cellpadding="0" cellspacing="0" class="box">
+  <tr>
+    <td valign="top" class="fundo_meio">
+      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td class="tit_informativo">Informativo</td>
+        </tr>
+        <tr>
+          <td>
+            <table width="100%" border="0" cellpadding="0" cellspacing="0" class="txt_informativo_geral">
+              <tr>
+                <td></td>
+              </tr>
+            </table></td>
+          </tr>
+        </table></td>
+        <td width="70%" valign="top">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td>
+
+                <div id="Accordion1" class="Accordion" tabindex="0">
+                  <div class="AccordionPanel">
+                    <div class="t1">T�tulos pendentes</div>
+                    <div class="c1">
+                      <font face='verdana,arial' size='2'><strong>N�o existe nenhum registro cadastrado.</strong></font>                  </div>
+                    </div>
+                    <div class="AccordionPanel">
+                      <div class="t2">T�tulos reservados</div>
+                      <div class="c2" id="div_tableTituloReserva">
+                        <font face='verdana,arial' size='2'><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N�o existe nenhum registro cadastrado.</strong></font>                  </div>
+                      </div>
+                      <div class="AccordionPanel">
+                        <div class="t3">Cesta permanente</div>
+                        <div class="c3">
+                          <font face='verdana,arial' size='2'><strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;N�o existe nenhum registro cadastrado.</strong></font>                  </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table></td>
+        </tr>
+        <tr>
+          <td valign="top" class="acabamento2">&nbsp;</td>
+          <td valign="top" class="acabamento">&nbsp;</td>
+        </tr>
+      </table>
+      <div class="espaco"></div>
+    </div>
+    <div id="symbol"></div>
+    <script type="text/javascript">
+      var Accordion1 = new Spry.Widget.Accordion("Accordion1");
+      this.focus();
+
+    </script>
+  </body>
+  </html>

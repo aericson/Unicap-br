@@ -1,0 +1,706 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <LINK REL="SHORTCUT ICON" href="meu_pergamum2.ico">
+    <title>..::Universidade Cat�lica de Pernambuco::.. </title>
+    <link href="css/01/meu_pergamum.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="../../css/dhtmlgoodies_calendar.css?random=20051112" media="screen"></LINK>
+    <link href="css/01/table.css" rel="stylesheet" type="text/css" />
+    <SCRIPT type="text/javascript" src="../../js/dhtmlgoodies_calendar.js?random=20060118"></script>
+      <script src="../../js/generico_mp.js" type="text/javascript"></script>
+      <script type="text/javascript">
+        <!--
+
+                // remote scripting library
+                // (c) copyright 2005 modernmethod, inc
+                var sajax_debug_mode = false;
+                var sajax_request_type = "GET";
+                var sajax_target_id = "";
+                var sajax_failure_redirect = "";
+
+                function sajax_debug(text) {
+                  if (sajax_debug_mode)
+                    alert(text);
+                }
+
+                function sajax_init_object() {
+                 sajax_debug("sajax_init_object() called..")
+
+                 var A;
+
+                 var msxmlhttp = new Array(
+                  'Msxml2.XMLHTTP.5.0',
+                  'Msxml2.XMLHTTP.4.0',
+                  'Msxml2.XMLHTTP.3.0',
+                  'Msxml2.XMLHTTP',
+                  'Microsoft.XMLHTTP');
+                 for (var i = 0; i < msxmlhttp.length; i++) {
+                  try {
+                    A = new ActiveXObject(msxmlhttp[i]);
+                  } catch (e) {
+                    A = null;
+                  }
+                }
+
+                if(!A && typeof XMLHttpRequest != "undefined")
+                  A = new XMLHttpRequest();
+                if (!A)
+                  sajax_debug("Could not create connection object.");
+                return A;
+              }
+
+              var sajax_requests = new Array();
+
+              function sajax_cancel() {
+                for (var i = 0; i < sajax_requests.length; i++)
+                  sajax_requests[i].abort();
+              }
+
+              function sajax_do_call(func_name, args) {
+                var i, x, n;
+                var uri;
+                var post_data;
+                var target_id;
+
+                sajax_debug("in sajax_do_call().." + sajax_request_type + "/" + sajax_target_id);
+                target_id = sajax_target_id;
+                if (typeof(sajax_request_type) == "undefined" || sajax_request_type == "")
+                  sajax_request_type = "GET";
+
+                uri = "http://www.unicap.br/pergamum2/Pergamum/biblioteca_s/meu_pergamum/emp_renovacao.php";
+                if (sajax_request_type == "GET") {
+
+                  if (uri.indexOf("?") == -1)
+                    uri += "?rs=" + escape(func_name);
+                  else
+                    uri += "&rs=" + escape(func_name);
+                  uri += "&rst=" + escape(sajax_target_id);
+                  uri += "&rsrnd=" + new Date().getTime();
+
+                  for (i = 0; i < args.length-1; i++)
+                    uri += "&rsargs[]=" + escape(args[i]);
+
+                  post_data = null;
+                }
+                else if (sajax_request_type == "POST") {
+                  post_data = "rs=" + escape(func_name);
+                  post_data += "&rst=" + escape(sajax_target_id);
+                  post_data += "&rsrnd=" + new Date().getTime();
+
+                  for (i = 0; i < args.length-1; i++)
+                    post_data = post_data + "&rsargs[]=" + escape(args[i]);
+                }
+                else {
+                  alert("Illegal request type: " + sajax_request_type);
+                }
+
+                x = sajax_init_object();
+                if (x == null) {
+                  if (sajax_failure_redirect != "") {
+                    location.href = sajax_failure_redirect;
+                    return false;
+                  } else {
+                    sajax_debug("NULL sajax object for user agent:\n" + navigator.userAgent);
+                    return false;
+                  }
+                } else {
+                  x.open(sajax_request_type, uri, true);
+                                // window.open(uri);
+
+                                sajax_requests[sajax_requests.length] = x;
+
+                                if (sajax_request_type == "POST") {
+                                  x.setRequestHeader("Method", "POST " + uri + " HTTP/1.1");
+                                  x.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+                                }
+
+                                x.onreadystatechange = function() {
+                                  if (x.readyState != 4)
+                                    return;
+
+                                  sajax_debug("received " + x.responseText);
+
+                                  var status;
+                                  var data;
+                                  var txt = x.responseText.replace(/^\s*|\s*$/g,"");
+                                  status = txt.charAt(0);
+                                  data = txt.substring(2);
+
+                                  if (status == "") {
+                                                // let's just assume this is a pre-response bailout and let it slide for now
+                                              } else if (status == "-")
+                                              alert("Error: " + data);
+                                              else {
+                                                if (target_id != "")
+                                                  document.getElementById(target_id).innerHTML = eval(data);
+                                                else {
+                                                  try {
+                                                    var callback;
+                                                    var extra_data = false;
+                                                    if (typeof args[args.length-1] == "object") {
+                                                      callback = args[args.length-1].callback;
+                                                      extra_data = args[args.length-1].extra_data;
+                                                    } else {
+                                                      callback = args[args.length-1];
+                                                    }
+                                                    callback(eval(data), extra_data);
+                                                  } catch (e) {
+                                                    sajax_debug("Caught error " + e + ": Could not eval " + data );
+                                                  }
+                                                }
+                                              }
+                                            }
+                                          }
+
+                                          sajax_debug(func_name + " uri = " + uri + "/post = " + post_data);
+                                          x.send(post_data);
+                                          sajax_debug(func_name + " waiting..");
+                                          delete x;
+                                          return true;
+                                        }
+
+                                        
+                // wrapper for ajax_mostra_tabela
+                function x_ajax_mostra_tabela() {
+                  sajax_do_call("ajax_mostra_tabela",
+                    x_ajax_mostra_tabela.arguments);
+                }
+
+                
+                // wrapper for ajax_volta_login_admin
+                function x_ajax_volta_login_admin() {
+                  sajax_do_call("ajax_volta_login_admin",
+                    x_ajax_volta_login_admin.arguments);
+                }
+
+                
+                function valida()
+                {
+
+                  if(document.form1.acao.value=="")
+                  {
+                   selec = false;
+                   i = 7;
+                   StrSelec = "";
+                   while(i < document.form1.elements.length - 1)
+                   {
+                     if (document.form1.elements[i].checked == true)
+                     {
+                       document.form1.renova.value="renovar";
+                       StrSelec = StrSelec + document.form1.elements[i].value + ";" ;
+                       selec = true;
+                     }
+                     i = i + 1 ;
+                   }
+ //alert(StrSelec);
+ if(selec == true)
+ {
+  document.form1.Selecs.value = StrSelec;
+  document.form1.acao.value="clicou";
+  document.form1.submit();
+}
+else
+{
+  alert('Selecione o(s) exemplar(es) que deseja renovar.');
+  return;
+}
+}
+else
+{
+  alert("Clique em OK e aguarde o processamento...");
+  return;
+}
+
+}
+
+function validadata()
+{
+  for(var i=0; i<2; i++)
+  {
+   if(i==0)
+    campo = document.getElementById("data_pesquisa_inicial").value;
+
+  if(i==1)
+    campo = document.getElementById("data_pesquisa_final").value;
+
+  if (campo == "")
+  {
+   alert("\nA data deve ser selecionada.");
+   return false;
+ }
+
+              //Verificaapresen�adasbarras//.
+              i1=campo.indexOf("/");
+              i2=campo.indexOf("/",i1+1);
+
+              if((i1==-1)||(i2==-1)||(i1==i2))
+              {
+                alert("\nO campo deve conter duas barras /.\nExemplo: 01/01/2010 ou 1/1/2010");
+                return false;
+              }
+
+              var dia = campo.substring(0,i1);
+              var mes = campo.substring(i1+1,i2);
+              var ano = campo.substring(i2+1,i2+5);
+
+                // Verifica se dia, mes e ano s�o n�meros.
+                //A fun��o Num verifica a presen�a de caracteres n�o num�ricos.
+
+                function Num(dado)
+                {
+                  for (var i = 0; i < dado.length; i++)
+                  {
+                   var ch = dado.charAt(i);
+                                 if (ch < "0" || "9" < ch)           //Procura por caracteres n�o num�ricos.
+                                   return true;
+                               }
+                               return false;
+                             }
+
+                             if(Num(dia))
+                             {
+                               alert("\nO dia deve conter apenas n�meros.");
+                               return false;
+                             }
+                             if(Num(mes))
+                             {
+                               alert("\nO m�s deve conter apenas n�meros.");
+                               return false;
+                             }
+                             if(Num(ano))
+                             {
+                              alert("\nO ano deve conter apenas n�meros.");
+                              return false;
+                            }
+
+                // Verifica se o m�s est� entre 01 e 12.
+
+                if ((mes < 1) || (mes > 12))
+                {
+                 alert("\nO m�s deve estar entre 01 e 12.");
+                 return false;
+               }
+
+
+                // Verifica se o dia est� correto, de acordo com os meses de 31 dias.
+
+                if ((mes==1) || (mes==3) || (mes==5) || (mes==7) || (mes==8) || (mes==10) || (mes ==12))
+                {
+                 if ((dia < 01) || (dia > 31))
+                 {
+                   alert("\nO dia deve estar entre 01 e 31.");
+                   return false;
+                 }
+               }
+
+                // Verifica se o dia est� correto, de acordo com os meses de 30 dias.
+
+                if ((mes==4) || (mes==6) || (mes==9) || (mes==11))
+                {
+                 if ((dia < 01) || (dia > 30))
+                 {
+                   alert("\nO dia deve estar entre 01 e 30.");
+                   return false;
+                 }
+               }
+
+                //Verifica se o dia est� correto, caso o m�s seja fevereiro, e caso o ano seja Bissexto.
+
+                if (mes== 2)
+                {
+                        if ((ano % 4) == 0)    // Bissexto
+                        {
+                          if ((dia < 1) || (dia > 29))
+                          {
+                           alert("\nO dia deve estar entre 01 e 29.");
+                           return false;
+                         }
+                       }
+                       else
+                       {
+                                 if ((dia < 1) || (dia > 28))  // N�o Bissexto
+                                 {
+                                  alert("\nO dia deve estar entre 01 e 28.");
+                                  return false;
+                                }
+                              }
+
+                            }
+
+                // Verifica se o ano cont�m 4 digitos.
+
+                if (ano.length != 4)
+                {
+                 alert("\nO ano deve possuir 4 d�gitos.\nExemplo: 1980.");
+                 return false;
+               }
+
+                // Verifica se o ano pertence ao intervalo 1999-2070. Altere o valor na linha abaixo e no alert.
+
+                if ((ano < 1985) || (ano > 2070))
+                {
+                  alert("\nO ano deve estar entre 1985 e 2070.");
+                  return false;
+                }
+              }
+
+              campo1 = document.getElementById("data_pesquisa_inicial").value;
+              var diai = campo1.substring(0,i1);
+              var mesi = campo1.substring(i1+1,i2);
+              var anoi = campo1.substring(i2+1,i2+5);
+
+              campo2 = document.getElementById("data_pesquisa_final").value;
+              var diat = campo2.substring(0,i1);
+              var mest = campo2.substring(i1+1,i2);
+              var anot = campo2.substring(i2+1,i2+5);
+
+              if(anoi > anot)
+              {
+                alert("\nO ano inicial deve ser menor.");
+                return false;
+              }
+              else
+              {
+                if(anoi == anot)
+                {
+                  if(mesi > mest)
+                  {
+                    alert("\nO m�s inicial deve ser menor.");
+                    return false;
+                  }
+                  else
+                  {
+                    if(mesi == mest)
+                    {
+                      if(diai > diat)
+                      {
+                        alert("\nO dia inicial deve ser menor.");
+                        return false;
+                      }
+                    }
+                  }
+                }
+              }
+
+              data1_temp = document.getElementById("data_pesquisa_inicial").value;
+              data2_temp = document.getElementById("data_pesquisa_final").value;
+              document.getElementById("id_carregar").style.display="block";
+
+              x_ajax_mostra_tabela(data1_temp,data2_temp,resultado_tabela);
+            }
+
+            function resultado_tabela(novo_dado){
+              document.getElementById("tabela_historico").innerHTML = novo_dado;
+              document.location.href="#link_mostra";
+              document.getElementById("id_carregar").style.display="none";
+            }
+//-->
+</script>
+
+</head>
+<body>
+  <div id="id_carregar" style="display:none">
+    <div class="carregar_meio">
+      <div class="img_loading">&nbsp;</div>
+      Aguarde . . .
+      <div>&nbsp;</div>
+      <div><input name="btn_cancelar" onClick="cancelarComando()" type="button" class="btn_cancelar" id="btn_cancelar" value="Cancelar" onClick="cancelarComando()" /></div>
+    </div>
+  </div>
+
+  <form name="form1" action="emp_renovacao.php" method="post">
+    <input type="hidden" name="renova" value="">
+    <input type="hidden" name="tipo" value="">
+    <input type="hidden" name="desc_tipo" value="">
+    <input type="hidden" name="Selecs" value="">
+    <input type="hidden" name="acao" value="">
+    <input type="hidden" name="codigoreduzido_anterior" value="2009123456">
+    <style type="text/css">
+      #logotype {
+        position:absolute;  
+        left:10px;  
+        top:10px; 
+        width:170px;  
+        height:90px;  
+        z-index:58; 
+        text-align: center; 
+        vertical-align: middle;
+        background-image: url(../../img/logo_empresa.jpg);
+        cursor:pointer;
+        background-repeat: no-repeat;
+        background-position:center;
+      }
+      #link_meupergamum {
+        position:absolute;
+        left:209px;
+        top:10px;
+        width:198px;
+        height:49px;
+        z-index:67;
+        cursor:pointer;
+      }
+      #div_ajuda {
+        position:absolute;
+  /*top:-3px;
+  right: 130px;*/
+  top:72px;
+  right: 10px;
+  z-index:68;
+  text-align: center;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  padding: 5px;
+  font-size: 12px;
+  color: #009999;
+  /*border: 3px double #B8CFE7;
+  background-color: #FFFFFF;*/
+  cursor: pointer;
+}
+#div_ajuda:hover {
+  color: #FFFFFF;
+  border: #B8CFE7;
+  background-color: #009999;
+}
+</style>
+<script type="text/javascript">
+
+function MM_goToURL() { //v3.0
+  var i, args=MM_goToURL.arguments; document.MM_returnValue = false;
+  for (i=0; i<(args.length-1); i+=2) eval(args[i]+".location='"+args[i+1]+"'");
+}
+
+function ver_manual_tela()
+{
+  window.open('./ajuda_telas/17.pdf','JanelaAjuda','width=795,height=520,top=2px,left=2px,status=yes,scrollbars=yes,resizable=yes');  
+}
+
+</script>
+<div id="link_meupergamum" title="Clique aqui para voltar � p�gina inicial do MEU Pergamum" onclick="MM_goToURL('parent','index.php');return document.MM_returnValue"></div>
+<div id="div_ajuda" onclick="ver_manual_tela();"><strong>(?)</strong> Ajuda</div>
+<div id="coringa1">&nbsp;</div>
+<div id="coringa2"></div>
+<div id="coringa3"></div>
+<div id="cesta"><link href="css/01/meu_pergamum.css" rel="stylesheet" type="text/css" />
+  <a href="css.php"><img src="img/01/transp.gif" title="Consultar minha CESTA" width="10" height="10" border="0" class="cesta_img" /></a></div>
+<!-- 
+<div id="cor"><link href="css/01/meu_pergamum.css" rel="stylesheet" type="text/css" />
+ <a href="css.php"><img src="img/01/transp.gif" title="Clique escolher outros LAYOUTS" width="10" height="10" border="0" class="cor_img" /></a></div>
+-->
+<div class="top"></div>
+<div id="canto_sair"><a href="logout.php"><img src="img/01/transp.gif" title="Sair do Meu Pergamum." width="10" height="10" border="0" class="btn_sair" /></a></div>
+<div id="logotype" title="Clique aqui para voltar � p�gina inicial do MEU Pergamum" onclick="MM_goToURL('parent','index.php');return document.MM_returnValue" ></div>
+<div id="nome"><a href="#"></a><strong>FOO BAR</strong>, Seja bem-vindo(a)!
+</div>
+<!-- 
+<div id="editar" onclick="document.location.href='dados_pessoais.php';">editar</div>
+-->
+<div id="sombra"></div>
+<div id="rodape">Copyright 2010 - <strong>Pergamum</strong>. Todos os direitos reservados&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</div>
+<span class="txt_azul">&nbsp;</span>
+<div id="btn_home"><a title="Voltar para a p�gina inicial" href="index.php"><img src="img/01/transp.gif" width="30" height="25" border="0" /></a></div>
+<div id="meio">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td width="10" valign="top">
+        <div id="menu1" class="menu1">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+            <tr>
+              <td height="23" valign="bottom"><div align="right"><a title="Minimizar este menu / Ocultar o menu" href="#"><img src="img/01/btn_mini.png" width="12" height="17" border="0" onclick="oculta('menu1');oculta('menu2')" /></a></div></td>
+            </tr>
+            <tr>
+              <td height="25">&nbsp;</td>
+            </tr>
+          </table><script src="SpryAssets/SpryMenuBar.js" type="text/javascript"></script>
+          <link href="css/01/SpryMenuBarHorizontal.css"
+          rel="stylesheet" type="text/css">
+          <link
+          href="css/01/SpryMenuBarVertical.css" rel="stylesheet" type="text/css">
+          <ul id="MenuBar1" class="MenuBarVertical"><li><a class="MenuBarItemSubmenu" href="#">Empr�stimo</a>
+            <ul><li><a href="emp_renovacao.php"> Renova��o</a></li><li><a href="emp_reserva.php"> Reserva</a></li><li><a href="emp_debito.php"> D�bito</a></li><li><a href="emp_pendente.php"> Material pendente</a></li><li><a href="emp_afastamento.php"> Afastamento</a></li>
+            </ul>
+          </li><li><a class="MenuBarItemSubmenu" href="#">Perfil de interesse</a>
+          <ul><li><a href="per_cadastro1.php"> �reas de interesse</a></li><li><a href="per_checar1.php"> Checar t�tulos</a></li><li><a href="per_cesta.php"> Cesta permanente</a></li><li><a href="per_plano.php"> Plano de ensino</a></li>
+          </ul>
+        </li><li><a class="MenuBarItemSubmenu" href="#">Solicita��es</a>
+        <ul><li><a href="sol_comutacao.php"> Comuta��o bibliogr�fica</a></li><li><a href="sol_ficha.php"> Ficha catalogr�fica</a></li>
+        </ul>
+      </li><li><a href="comentario.php"> Comentarios</a></li><li><a href="dados_pessoais.php"> Dados pessoais</a></li><li><a href="alterar_senha.php"> Altera��o de senha</a></li></ul><script type="text/javascript">
+      <!--
+      var MenuBar1 = new Spry.Widget.MenuBar("MenuBar1", {imgRight:"SpryAssets/SpryMenuBarRightHover.gif"});
+//-->
+</script>        </div>
+<div id="menu2" class="menu2" style="display:none">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td height="23" valign="bottom"><div align="center"><a title="Maximizar o menu / Visualizar o menu" href="#"><img src="img/01/btn_maxi.png" width="12" height="17" border="0" onclick="oculta('menu2');oculta('menu1')" /></a></div></td>
+    </tr>
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+  </table>
+</div></td>
+<td valign="top" class="fundo_meio">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+    <tr>
+      <td class="tit_informativo"> Renova��o</td>
+    </tr>
+    <tr>
+      <td class="borda_iframe">
+        <div class='nenhum_registro'>LEIA COM ATEN��O ANTES DE PROCESSAR A RENOVA��O<br>
+          <br>
+          O PROCESSO DE RENOVA��O N�O � ACUMULATIVO!  O NOVO PER�ODO DE EMPR�STIMO IR� CONTAR A PARTIR DA DATA EM QUE O USU�RIO RENOVAR A PUBLICA��O.<br>
+          <br>
+          CONFIRA A DATA  QUE DEVER� SER  EFETUADA A DEVOLU��O E FA�A A IMPRESS�O DO COMPROVANTE DE RENOVA��O.<br>
+        </div>
+        <table width="100%" border="0 cellpadding="0" cellspacing="0" class="box">
+         <tr>
+          <td valign="top">
+
+            <table width="100%" border="0" cellpadding="0" cellspacing="0">
+              <tr>
+                <td valign="top">
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                      <td width="60" class="box_c">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        <input type="checkbox" title="Marcas TODOS os itens abaixo!" name="todos" onClick="marcarTodos();">
+                      </td>
+                      <td width="150" class="box_write_left"><strong>Exemplar</strong></td>
+                      <td class="box_azul_left"><strong>Descri&ccedil;&atilde;o</strong></td>
+                      <td width="130" class="box_write_c"><strong>Devolver at&eacute;</strong></td>
+                    </tr>
+                  </table>
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                      <td width="60" class="box_c"><input name="button1" type="button" title="Mostrar / Ocultar detalhes deste exemplar" class="btn_oculta1" id="button1" onclick="oculta('1b')" value=" " />
+                        &nbsp;
+                        <input type="checkbox" name="check_1" value="99200056@#1@#1">
+                      </td>
+                      <td width="150" class="box_write_left">99200056</td>
+                      <td class="box_azul_left"> Compiladores : princ�pios, t�cnicas e ferramentas.    - <i>(Livros)</i><font size='1'></font></td>
+                      <td width="130" class="box_write_c">18/02/2014</td>
+                    </tr>
+                  </table>
+
+                  <div id="1b" style="display:none">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td class="box_do_detalhes"><table width="100%" border="0" cellpadding="0" cellspacing="0">
+                          <tr>
+                            <td class="box_f7f7f7_c"><em><strong>N&uacute;mero de chamada: 004.4'422 A286c  Ac.163472</strong></em></td>
+                            <td class="box_fffff_c">Biblioteca de origem: Biblioteca Central                                                              </td>
+                          </tr>
+                          <tr>
+                            <td class="box_f7f7f7_c">Tipo de empr&eacute;stimo: Normal              </td>
+                            <td class="box_fffff_c">Descri��o: n� 2 </td>
+                          </tr>
+                          <tr>
+                            <td class="box_f7f7f7_c">Data de empr&eacute;stimo: 03/02/2014 14:58:35</td>
+                            <td class="box_fffff_c">Devolver at�: <strong>18/02/2014</strong></td>
+                          </tr>
+                          <tr>
+                            <td class="box_f7f7f7_c">Valor parcial da multa: R$ 0,00</td>
+                            <td class="box_fffff_c">Total de renova&ccedil;&otilde;es efetuadas: 0</td>
+                          </tr>
+                        </table></td>
+                      </tr>
+                    </table>
+                  </div>
+
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                      <td class="box_azul_left_border">
+                       <input name="btn_gravar" onclick="valida();" type="button" class="btn_gravar" id="btn_gravar" value="Gravar" />
+                     </td>
+                   </tr>
+                 </table>
+
+                 
+                 <!-- Come�a hist�rico -->
+                 <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                  <tr>
+                    <td class="box_alert_renovado">
+                      <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                        <tr>
+                          <td width="100"><div align="left" class="txt_azul">
+                            <div align="center" class="txt_azul_">Hist&oacute;rico:</div>
+                          </div></td>
+                          <td><div align="left">
+                            <div align="left">
+                              <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                                <tr>
+
+                                  <td width="100" height="30" nowrap="nowrap"><div align="right" class="txt_azul">Data inicial:&nbsp; </div></td>
+                                  <td width="30" title="Clique aqui para adicionar uma data">
+                                    <div align="center">
+                                      <img src="../../img/calendar.gif" width="24" height="24" border="0" style="cursor: pointer" onClick="displayCalendar(document.forms[0].data_pesquisa_inicial,'dd/mm/yyyy',this);" />
+                                    </div>
+                                  </td>
+                                  <td width="100"><div align="left">
+                                    <input name="data_pesquisa_inicial" class="tab" id="data_pesquisa_inicial" value="dd/mm/aaaa" size="10" maxlength="10" onblur="gen_mascara_data(this.id)" onfocus="gen_mascara_data_foco(this.id)" onkeyup="gen_add_date_bar(this, event)" onkeypress="return gen_bloqueia_slash(event.keyCode?event.keyCode:event.which)">
+                                  </div></td>
+
+                                  <td width="100"><div align="right" class="txt_azul">Data final:&nbsp; </div></td>
+                                  <td width="30" title="Clique aqui para adicionar uma data">
+                                    <div align="center">
+                                      <img src="../../img/calendar.gif" width="24" height="24" border="0" style="cursor: pointer" onClick="displayCalendar(document.forms[0].data_pesquisa_final,'dd/mm/yyyy',this);" />
+                                    </div>
+                                  </td>
+                                  <td width="100"><div align="left">
+                                    <input name="data_pesquisa_final" class="tab" id="data_pesquisa_final" value="dd/mm/aaaa" size="10" maxlength="10" onblur="gen_mascara_data(this.id)" onfocus="gen_mascara_data_foco(this.id)" onkeyup="gen_add_date_bar(this, event)" onkeypress="return gen_bloqueia_slash(event.keyCode?event.keyCode:event.which)">
+                                  </div></td>
+
+                                  <td>&nbsp;&nbsp;&nbsp;
+                                    <input name="ver" type="button" class="btn_mostrar" id="ver" onclick="validadata()" value="Mostrar" /></td>
+                                  </tr>
+                                </table>
+                              </div>
+                            </div></td>
+                          </tr>
+                        </table></td>
+                      </tr>
+                    </table>
+                    <div id="tabela_historico">
+                      <br><br><br>
+                    </div>
+                    <!-- Fim hist�rico -->
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+        </table></td>
+      </tr>
+
+    </table>
+  </td>
+  <td width="5" valign="top">&nbsp;</td>
+</tr>
+<tr>
+  <td valign="top" class="acabamento2">&nbsp;</td>
+  <td valign="top" class="acabamento">&nbsp;</td>
+  <td valign="top">&nbsp;</td>
+</tr>
+</table>
+<div class="espaco"></div>
+</div>
+<div id="symbol"></div>
+</form>
+</body>
+<script language="JavaScript">
+
+  function marcarTodos()
+  {
+  if(document.form1.todos.checked)
+  {
+  document.form1.check_1.checked=true;
+}
+else
+{
+ document.form1.check_1.checked=false;
+}
+}
+
+</script>
+</html>

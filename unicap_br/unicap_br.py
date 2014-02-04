@@ -1,4 +1,3 @@
-#!/usr/bin/python2
 # -*- coding: utf-8 -*-
 """
     Modulo para se comunicar
@@ -13,23 +12,23 @@ import re
 import mechanize
 import cookielib
 from datetime import date
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
-LOGIN_PAGE = ('http://www.unicap.br/pergamum/Pergamum/biblioteca_s/php/login_'
-              'usu.php')
-RENOV_PAGE = ('http://www.unicap.br/pergamum/Pergamum/biblioteca_s/php/au_pe'
-              'ndente.php?titpag=%20Renova%E7%E3o&tipo=renovacao&flag=index.'
-              'php')
+BASE_PAGE  = 'http://www.unicap.br/pergamum2/Pergamum/biblioteca_s/'
+LOGIN_PAGE = (BASE_PAGE + 'php/login_usu.php')
+RENOV_PAGE = (BASE_PAGE + 'meu_pergamum/emp_renovacao.php')
 DEBUG = False
 
+class LoginError(Exception):
+    pass
 
 class Book(object):
 
     def __init__(self, soup_tag):
         tds = soup_tag.findAll('td')
-        self.check = str(tds[0].find('input')['name'])
-        self.title = tds[2].string.strip()
-        self.deadline = date(*map(int, tds[6].string.strip().split('/')[::-1]))
+        self.check = str(tds[0].findAll('input')[1]['name'])
+        self.title = tds[2].text
+        self.deadline = date(*map(int, tds[3].text.split('/')[::-1]))
 
     def days_left(self):
         """
@@ -47,13 +46,14 @@ class Book(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-
 class Library(object):
 
-    def __init__(self, login, password):
+    def __init__(self, login, password, browser=None):
+        self.browser = browser
+        if browser is None:
+            self.browser = mechanize.Browser()
         self.login = login
         self.password = password
-        self._login()
 
     def get_books(self):
         """
@@ -61,15 +61,24 @@ class Library(object):
         """
         r = self.browser.open(RENOV_PAGE)
         self.browser.select_form(name='form1')
-        soup = BeautifulSoup(r, fromEncoding='iso-8859-1')
-        books = soup.findAll('tr', attrs={'class': re.compile('rel.*')})
+        soup = BeautifulSoup(r, from_encoding='iso-8859-1')
+
+        box_azul = soup.find("td", {"class": "box_azul_left"})
+        if box_azul is None:
+            return []
+        table = box_azul.parent.parent.parent
+        subs = table.findAll(recursive=False)
+        books = []
+        for elem in subs[1:]:
+            if elem.name != u'table':
+                break
+            books.append(elem)
         return [Book(book) for book in books]
 
-    def _login(self):
+    def logon(self):
         """
             Faz o login, deixe que __init__ chama essa func
         """
-        self.browser = mechanize.Browser()
         cj = cookielib.LWPCookieJar()
         self.browser.set_cookiejar(cj)
         self.browser.open(LOGIN_PAGE)
@@ -77,11 +86,15 @@ class Library(object):
         self.browser.form['login'] = self.login
         self.browser.form['password'] = self.password
         r = self.browser.submit()
-        assert r.geturl() != LOGIN_PAGE
+        if r.geturl() == LOGIN_PAGE:
+            raise LoginError()
+        soup = BeautifulSoup(r, from_encoding='iso-8859-1')
+        name = soup.find('div', id='nome').text.split(",")[0]
         # TODO: create an exception
         if DEBUG:
-            print u'LOGGED AS ' + u' '.join(self.browser.title().split()[2:])
+            print u'LOGGED AS ' + name
         self.books = self.get_books()
+        return name
 
     def _get_control_and_set_value(self, control_name, value):
         control = self.browser.find_control(control_name)
