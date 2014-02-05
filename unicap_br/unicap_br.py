@@ -12,7 +12,7 @@ import re
 import mechanize
 import cookielib
 from datetime import date
-from bs4 import BeautifulSoup
+from BeautifulSoup import BeautifulSoup
 
 BASE_PAGE  = 'http://www.unicap.br/pergamum2/Pergamum/biblioteca_s/'
 LOGIN_PAGE = (BASE_PAGE + 'php/login_usu.php')
@@ -61,7 +61,7 @@ class Library(object):
         """
         r = self.browser.open(RENOV_PAGE)
         self.browser.select_form(name='form1')
-        soup = BeautifulSoup(r, from_encoding='iso-8859-1')
+        soup = BeautifulSoup(r, fromEncoding='iso-8859-1')
 
         box_azul = soup.find("td", {"class": "box_azul_left"})
         if box_azul is None:
@@ -71,6 +71,9 @@ class Library(object):
         books = []
         for elem in subs[1:]:
             if elem.name != u'table':
+                continue
+            # import pdb; pdb.set_trace()
+            if elem.find("input", {'class': 'btn_gravar'}):
                 break
             books.append(elem)
         return [Book(book) for book in books]
@@ -88,7 +91,7 @@ class Library(object):
         r = self.browser.submit()
         if r.geturl() == LOGIN_PAGE:
             raise LoginError()
-        soup = BeautifulSoup(r, from_encoding='iso-8859-1')
+        soup = BeautifulSoup(r, fromEncoding='iso-8859-1')
         name = soup.find('div', id='nome').text.split(",")[0]
         # TODO: create an exception
         if DEBUG:

@@ -63,8 +63,8 @@ class UnicapBrTestCase(unittest.TestCase):
 
     def test_login(self):
         self.mock()
-        self.assertEqual(self.lib.logon(), "FOO BAR")
-        self.assertEqual(len(self.lib.books), 1)
+        self.assertEqual(self.lib.logon(), 'FOO BAR')
+        self.assertEqual(len(self.lib.books), 2)
 
     def test_renov(self):
         self.unmock()
@@ -74,7 +74,7 @@ class UnicapBrTestCase(unittest.TestCase):
             print u"LoginError: Não esqueça de mudar a informação em tests/test.cfg"
             raise unicap_br.LoginError()
         books = self.lib.books
-        result = []
+        result = set()
         for i in books:
             new_deadline = date.today() + timedelta(days=15)
             if new_deadline.weekday() == 5:
@@ -82,8 +82,10 @@ class UnicapBrTestCase(unittest.TestCase):
             elif new_deadline.weekday() == 6:
                 new_deadline += timedelta(days=1)
             if new_deadline != i.deadline:
-                result += i
-        done = self.lib.renew_all_old(15)
+                result.append(i)
+        done = self.lib.renew_all_old(16)
+        if done:
+            done = set(done)
         try:
             self.assertEqual(done, result)
         except AssertionError as ex:

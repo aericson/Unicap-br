@@ -160,7 +160,7 @@
                                           return true;
                                         }
 
-                                        
+
                 // wrapper for ajax_mostra_tabela
                 function x_ajax_mostra_tabela() {
                   sajax_do_call("ajax_mostra_tabela",
@@ -574,15 +574,52 @@ function ver_manual_tela()
                     <tr>
                       <td width="60" class="box_c"><input name="button1" type="button" title="Mostrar / Ocultar detalhes deste exemplar" class="btn_oculta1" id="button1" onclick="oculta('1b')" value=" " />
                         &nbsp;
-                        <input type="checkbox" name="check_1" value="99200056@#1@#1">
+                        <input type="checkbox" name="check_1" value="99249460@#1@#1">
                       </td>
-                      <td width="150" class="box_write_left">99200056</td>
-                      <td class="box_azul_left"> Compiladores : princ�pios, t�cnicas e ferramentas.    - <i>(Livros)</i><font size='1'></font></td>
-                      <td width="130" class="box_write_c">18/02/2014</td>
+                      <td width="150" class="box_write_left">99249460</td>
+                      <td class="box_azul_left"> Fundamentos de sistemas operacionais.    - <i>(Livros)</i><font size='1'></font></td>
+                      <td width="130" class="box_write_c">20/02/2014</td>
                     </tr>
                   </table>
 
                   <div id="1b" style="display:none">
+                    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                      <tr>
+                        <td class="box_do_detalhes"><table width="100%" border="0" cellpadding="0" cellspacing="0">
+                          <tr>
+                            <td class="box_f7f7f7_c"><em><strong>N&uacute;mero de chamada: 004.451 S582f  Ac.190801</strong></em></td>
+                            <td class="box_fffff_c">Biblioteca de origem: Biblioteca Central                                                              </td>
+                          </tr>
+                          <tr>
+                            <td class="box_f7f7f7_c">Tipo de empr&eacute;stimo: Normal              </td>
+                            <td class="box_fffff_c">Descri��o: n� 8 </td>
+                          </tr>
+                          <tr>
+                            <td class="box_f7f7f7_c">Data de empr&eacute;stimo: 05/02/2014 03:39:33</td>
+                            <td class="box_fffff_c">Devolver at�: <strong>20/02/2014</strong></td>
+                          </tr>
+                          <tr>
+                            <td class="box_f7f7f7_c">Valor parcial da multa: R$ 0,00</td>
+                            <td class="box_fffff_c">Total de renova&ccedil;&otilde;es efetuadas: 1</td>
+                          </tr>
+                        </table></td>
+                      </tr>
+                    </table>
+                  </div>
+
+                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
+                    <tr>
+                      <td width="60" class="box_c"><input name="button2" type="button" title="Mostrar / Ocultar detalhes deste exemplar" class="btn_oculta1" id="button2" onclick="oculta('2b')" value=" " />
+                        &nbsp;
+                        <input type="checkbox" name="check_2" value="99200056@#1@#1">
+                      </td>
+                      <td width="150" class="box_write_left">99200056</td>
+                      <td class="box_azul_left"> Compiladores : princ�pios, t�cnicas e ferramentas.    - <i>(Livros)</i><font size='1'></font></td>
+                      <td width="130" class="box_write_c">20/02/2014</td>
+                    </tr>
+                  </table>
+
+                  <div id="2b" style="display:none">
                     <table width="100%" border="0" cellspacing="0" cellpadding="0">
                       <tr>
                         <td class="box_do_detalhes"><table width="100%" border="0" cellpadding="0" cellspacing="0">
@@ -595,12 +632,12 @@ function ver_manual_tela()
                             <td class="box_fffff_c">Descri��o: n� 2 </td>
                           </tr>
                           <tr>
-                            <td class="box_f7f7f7_c">Data de empr&eacute;stimo: 03/02/2014 14:58:35</td>
-                            <td class="box_fffff_c">Devolver at�: <strong>18/02/2014</strong></td>
+                            <td class="box_f7f7f7_c">Data de empr&eacute;stimo: 05/02/2014 03:40:17</td>
+                            <td class="box_fffff_c">Devolver at�: <strong>20/02/2014</strong></td>
                           </tr>
                           <tr>
                             <td class="box_f7f7f7_c">Valor parcial da multa: R$ 0,00</td>
-                            <td class="box_fffff_c">Total de renova&ccedil;&otilde;es efetuadas: 0</td>
+                            <td class="box_fffff_c">Total de renova&ccedil;&otilde;es efetuadas: 2</td>
                           </tr>
                         </table></td>
                       </tr>
@@ -615,7 +652,7 @@ function ver_manual_tela()
                    </tr>
                  </table>
 
-                 
+
                  <!-- Come�a hist�rico -->
                  <table width="100%" border="0" cellspacing="0" cellpadding="0">
                   <tr>
@@ -695,10 +732,12 @@ function ver_manual_tela()
   if(document.form1.todos.checked)
   {
   document.form1.check_1.checked=true;
+  document.form1.check_2.checked=true;
 }
 else
 {
  document.form1.check_1.checked=false;
+ document.form1.check_2.checked=false;
 }
 }
 
