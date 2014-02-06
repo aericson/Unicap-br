@@ -8,7 +8,7 @@ CONFIG = "test.cfg"
 
 class MockRequest(Mock):
 
-    def get_url(self):
+    def geturl(self):
         if self.http == unicap_br.LOGIN_PAGE:
             return "http://wwww.example.com"
         else:
