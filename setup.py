@@ -6,7 +6,7 @@ README = open('README').read()
 setup(
     name='unicap_br',
     license='MIT',
-    version='0.1',
+    version='0.2',
     description='Unicap book renewer',
     author='André Ericson',
     author_email='de.ericson@gmail.com',

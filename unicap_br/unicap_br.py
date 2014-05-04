@@ -13,11 +13,25 @@ import mechanize
 import cookielib
 from datetime import date
 from BeautifulSoup import BeautifulSoup
+import logging
+import sys
 
 BASE_PAGE  = 'http://www.unicap.br/pergamum2/Pergamum/biblioteca_s/'
 LOGIN_PAGE = (BASE_PAGE + 'php/login_usu.php')
 RENOV_PAGE = (BASE_PAGE + 'meu_pergamum/emp_renovacao.php')
 DEBUG = False
+
+def turn_debug(browser):
+    browser.set_debug_redirects(True)
+    # Log HTTP response bodies (ie. the HTML, most of the time).
+    browser.set_debug_responses(True)
+    # Print HTTP headers.
+    browser.set_debug_http(True)
+
+    # To make sure you're seeing all debug output:
+    logger = logging.getLogger("mechanize")
+    logger.addHandler(logging.StreamHandler(sys.stdout))
+    logger.setLevel(logging.INFO)
 
 class LoginError(Exception):
     pass
@@ -27,6 +41,7 @@ class Book(object):
     def __init__(self, soup_tag):
         tds = soup_tag.findAll('td')
         self.check = str(tds[0].findAll('input')[1]['name'])
+        self.code = tds[1].text
         self.title = tds[2].text
         self.deadline = date(*map(int, tds[3].text.split('/')[::-1]))
 
@@ -54,6 +69,8 @@ class Library(object):
             self.browser = mechanize.Browser()
         self.login = login
         self.password = password
+        if DEBUG and isinstance(self.browser, mechanize.Browser):
+            turn_debug(self.browser)
 
     def get_books(self):
         """

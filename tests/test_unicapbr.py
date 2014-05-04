@@ -66,13 +66,16 @@ class UnicapBrTestCase(unittest.TestCase):
         self.assertEqual(self.lib.logon(), 'FOO BAR')
         self.assertEqual(len(self.lib.books), 2)
 
-    def test_renov(self):
-        self.unmock()
+    def try_login(self):
         try:
             self.lib.logon()
-        except unicap_br.LoginError:
+        except unicap_br.LoginError as e:
             print u"LoginError: Não esqueça de mudar a informação em tests/test.cfg"
-            raise unicap_br.LoginError()
+            raise e
+
+    def test_renov(self):
+        self.unmock()
+        self.try_login()
         books = self.lib.books
         result = set()
         for i in books:
@@ -91,3 +94,9 @@ class UnicapBrTestCase(unittest.TestCase):
         except AssertionError as ex:
             if done is not None or result:
                 raise ex
+
+    def test_book_code(self):
+        self.mock()
+        self.assertEqual(self.lib.logon(), 'FOO BAR')
+        self.assertEqual(self.lib.books[0].code, '99249460')
+        self.assertEqual(self.lib.books[1].code, '99200056')
